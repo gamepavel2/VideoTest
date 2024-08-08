@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web SDK Video Quickstart</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./dist/bundledAgoraLogic.js"></script>
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+    <h2>Web SDK Video Quickstart</h2>
+    <div class="video-container">
+        <!-- Контейнер для текущего стрима будет добавляться динамически здесь -->
+    </div>
+    <div class="button-container">
+        <button type="button" id="create-stream">Create Stream</button>
+    </div>
+    <script>
+        // Код для отображения текущего потока, если он существует
+        async function displayCurrentStream() {
+            // Реализация для отображения текущего стрима, если требуется
+        }
+
+        document.getElementById('create-stream').onclick = function() {
+            window.location.href = 'stream.html';
+        };
+
+        displayCurrentStream();
+    </script>
+</body>
+</html>

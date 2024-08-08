@@ -1,0 +1,22 @@
+{
+  "name": "agora_web_quickstart",
+  "version": "1.0.0",
+  "main": "agoraLogic.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js",
+    "start:dev": "webpack serve --open --config webpack.config.js"
+  },
+  "dependencies": {
+    "agora-rtc-sdk-ng": "latest"
+  },
+  "devDependencies": {
+    "webpack": "5.91.0",
+    "webpack-dev-server": "5.0.4",
+    "webpack-cli": "5.1.4"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "description": ""
+}
