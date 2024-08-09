@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start a Stream</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./dist/bundledAgoraLogic.js"></script>
+    <link rel="stylesheet" href="./style/stream.css">
+</head>
+<body>
+    <h2>Start a Stream</h2>
+    <div id="stream-options" class="visible">
+        <button type="button" id="stream-webcam">Stream Webcam</button>
+        <button type="button" id="stream-screen">Stream Screen</button>
+    </div>
+    <div id="audio-options" class="visible">
+        <label><input type="checkbox" id="mic-audio" /> Capture Microphone Audio</label><br/>
+        <label><input type="checkbox" id="system-audio" /> Capture System Audio</label><br/>
+    </div>
+    <div class="video-container hidden">
+        <!-- Контейнеры для видео будут добавляться динамически здесь -->
+    </div>
+    <div class="button-container">
+        <button type="button" id="host-join">Join as host</button>
+        <button type="button" id="leave" class="hidden">Leave</button>
+    </div>
+
+    <script src="./style/stream.js"></script>
+</body>
+</html>

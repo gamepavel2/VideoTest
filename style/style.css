@@ -1,3 +1,5 @@
+/* style.css */
+
 /* Устанавливаем базовые стили для страницы */
 body {
     margin: 0;
@@ -8,62 +10,85 @@ body {
     justify-content: center;
     height: 100vh;
     background-color: #f0f0f0;
+    overflow: hidden;
 }
 
 /* Стили для контейнера с видео */
 .video-container {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     background-color: #000;
     overflow: hidden;
+    position: relative; /* Устанавливаем относительное позиционирование для контейнера */
 }
 
-.video-container div {
-    flex: 1 1 auto;
-    width: calc(33.33% - 10px);
-    max-width: 100%;
-    height: calc(50% - 10px);
-    position: relative;
-    margin: 5px;
+/* Стили для видео */
+.video-container video {
+    width: 100% !important;
+    height: 100% !important;
+    /*object-fit: cover !important;*/
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
 }
 
-.video-container div video {
-    position: absolute;
-    top: 0;
-    left: 0;
+/* Стили для нижней полосы с кнопками */
+.button-bar {
+    position: fixed; /* Фиксируем панель внизу экрана */
+    bottom: 0;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-video {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    background: transparent; /* Делаем фон полностью прозрачным */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2vh; /* Используем высоту видимой области для отступов */
+    box-sizing: border-box;
+    height: 10vh; /* Используем высоту видимой области для высоты панели */
+    pointer-events: none; /* Отключаем возможность взаимодействия с панелью */
 }
 
 /* Стили для кнопок */
-.button-container, #stream-options {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
+.button-bar .button {
+    padding: 0; /* Убираем внутренние отступы */
+    font-size: 1.5em; /* Устанавливаем размер шрифта для лучшего соответствия */
+    font-weight: bold; /* Жирный текст */
     cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
+    border: 0.5em solid white; /* Ширина границы */
+    border-radius: 50%; /* Круглая форма */
+    background: transparent; /* Прозрачный фон */
     color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center; /* Вертикальное выравнивание */
+    justify-content: center; /* Горизонтальное выравнивание */
+    box-shadow: none; /* Убираем тень */
+    transition: transform 0.3s ease; /* Плавный переход при наведении */
+    pointer-events: all; /* Взаимодействие с кнопками */
+    width: 3em; /* Ширина */
+    height: 3em; /* Высота */
+    line-height: 1; /* Убираем возможные дополнительные отступы у текста */
 }
 
-button:hover {
-    background-color: #0056b3;
+/* Эффекты при наведении для кнопок */
+.button-bar .button:hover {
+    transform: scale(1.1); /* Увеличение кнопки при наведении */
+}
+
+/* Стили для кнопки со знаком плюс */
+.button-bar .button[href="stream.html"] {
+    font-size: 1.5em; /* Устанавливаем размер шрифта для кнопки со знаком "+" */
+}
+/* Стили для кнопки со значком ">" */
+#audience-join {
+    font-size: 6vw; /* Используем ширину видимой области для размера шрифта */
+    background: linear-gradient(145deg, #dc3545, #c82333); /* Красный градиентный фон */
+    border: none; /* Убираем стандартную границу кнопки */
+}
+
+/* Эффекты при наведении для кнопки со значком ">" */
+#audience-join:hover {
+    background: linear-gradient(145deg, #c82333, #dc3545); /* Инвертированный градиент при наведении */
 }

@@ -6,26 +6,16 @@
     <title>Web SDK Video Quickstart</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="./dist/bundledAgoraLogic.js"></script>
-    <!-- Подключаем CSS-файл -->
     <link rel="stylesheet" href="./style/style.css">
 </head>
 <body>
-    <h2>Web SDK Video Quickstart</h2>
-    <div id="stream-options">
-        <button type="button" id="stream-webcam">Stream Webcam</button>
-        <button type="button" id="stream-screen">Stream Screen</button>
-    </div>
-    <div id="audio-options">
-        <label><input type="checkbox" id="mic-audio" /> Capture Microphone Audio</label><br/>
-        <label><input type="checkbox" id="system-audio" /> Capture System Audio</label><br/>
-    </div>
     <div class="video-container">
         <!-- Контейнеры для видео будут добавляться динамически здесь -->
     </div>
-    <div class="button-container">
-        <button type="button" id="host-join">Join as host</button>
-        <button type="button" id="audience-join">Join as audience</button>
-        <button type="button" id="leave">Leave</button>
+    <div class="button-bar">
+        <a href="stream.html" class="button">+</a>
+        <button type="button" id="audience-join" class="button">&gt;</button>
     </div>
+    <script src="./style/videoFitAdjuster.js"></script>
 </body>
 </html>

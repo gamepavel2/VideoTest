@@ -1,0 +1,48 @@
+/* stream.css */
+
+/* Класс для скрытия элементов */
+.hidden {
+    display: none !important;
+}
+
+/* Стили для заголовка страницы */
+h2 {
+    margin-top: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+/* Стили для настроек стрима */
+#stream-options {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#audio-options {
+    margin-top: 20px;
+}
+
+/* Стили для контейнера с кнопками */
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Стили для кнопок */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
