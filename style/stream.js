@@ -23,3 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
         leaveButton.classList.add('hidden');
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const hostJoinButton = document.getElementById('host-join');
+    const videoContainer = document.querySelector('.video-container');
+
+    hostJoinButton.addEventListener('click', function() {
+        videoContainer.classList.remove('hidden');
+    });
+});

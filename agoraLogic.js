@@ -74,7 +74,7 @@ async function initializeStreamPage() {
 
             await rtc.client.publish(tracks);
         }
-
+        
         const localPlayerContainer = document.createElement("div");
         localPlayerContainer.className = 'video-container'; // Применяем CSS-класс
         localPlayerContainer.id = uid;
