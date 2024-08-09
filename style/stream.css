@@ -26,7 +26,7 @@ h2 {
 
 /* Стили для контейнера с кнопками */
 .button-container {
-    margin-top: 20px;
+    margin-top: 0px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -71,6 +71,7 @@ body {
     position: relative; /* Устанавливаем относительное позиционирование для контейнера */
 }
 
+  
 /* Стили для видео */
 .video-container video {
     width: 100% !important;
@@ -80,3 +81,10 @@ body {
     left: 0 !important;
     top: 0 !important;
 }
+
+#leave {
+    position: absolute;
+    top: 10px; /* отступ сверху */
+    right: 10px; /* отступ справа */
+    z-index: 1; /* кнопка должна быть поверх видео */
+  }
