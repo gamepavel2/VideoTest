@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const videoContainer = document.querySelector('.video-container');
     const streamOptions = document.getElementById('stream-options');
     const audioOptions = document.getElementById('audio-options');
+    const streamInfo = document.getElementById('stream-info');
 
     hostJoinButton.addEventListener('click', function() {
         // Показать контейнер с видео и скрыть другие элементы
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         audioOptions.classList.add('hidden');
         hostJoinButton.classList.add('hidden');
         leaveButton.classList.remove('hidden');
+        streamInfo.classList.add('hidden');
     });
 
     leaveButton.addEventListener('click', function() {
@@ -21,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
         audioOptions.classList.remove('hidden');
         hostJoinButton.classList.remove('hidden');
         leaveButton.classList.add('hidden');
+        streamInfo.classList.remove('hidden');
     });
 });
 
