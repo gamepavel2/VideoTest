@@ -5,6 +5,20 @@
     display: none !important;
 }
 
+/* Устанавливаем базовые стили для страницы */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+
 /* Стили для заголовка страницы */
 h2 {
     margin-top: 20px;
@@ -46,18 +60,29 @@ button {
 button:hover {
     background-color: #0056b3;
 }
-/* Устанавливаем базовые стили для страницы */
-body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    overflow: hidden;
+
+/* Поля ввода и текстовые области */
+input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+#leave {
+    position: absolute;
+    top: 10px; /* отступ сверху */
+    right: 10px; /* отступ справа */
+    z-index: 1; /* кнопка должна быть поверх видео */
+  }
+
+
 
 /* Стили для контейнера с видео */
 .video-container {
@@ -82,9 +107,3 @@ body {
     top: 0 !important;
 }
 
-#leave {
-    position: absolute;
-    top: 10px; /* отступ сверху */
-    right: 10px; /* отступ справа */
-    z-index: 1; /* кнопка должна быть поверх видео */
-  }

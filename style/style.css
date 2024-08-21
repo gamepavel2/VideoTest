@@ -35,6 +35,51 @@ body {
     top: 0 !important;
 }
 
+.transition-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3); /* Основной фон */
+    backdrop-filter: blur(60px); /* Размытие */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transform: translateY(100%);
+    opacity: 0;
+    z-index: 9998;
+    overflow: hidden;
+}
+
+.transition-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('image/blurfon.png'); /* Абстрактный паттерн */
+    background-size: cover;
+    filter: blur(10px); /* Дополнительное размытие для паттерна */
+    z-index: -1; /* Помещаем под основным слоем */
+}
+
+.transition-overlay.show {
+    opacity: 1;
+}
+/* Эффект исчезновения */
+.fade-out {
+    opacity: 0;               /* Полностью прозрачный */
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: scale(0.95);   /* Немного уменьшаем масштаб для дополнительного эффекта */
+}
+
+/* Эффект появления */
+.fade-in {
+    opacity: 1;               /* Полностью видимый */
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: scale(1);      /* Восстанавливаем масштаб */
+}
+
 /* Стили для нижней полосы с кнопками */
 .button-bar {
     position: fixed; /* Фиксируем панель внизу экрана */
@@ -52,11 +97,11 @@ body {
 
 /* Стили для кнопок */
 .button-bar .button {
-    padding: 0; /* Убираем внутренние отступы */
+    padding: 0em; /* Убираем внутренние отступы */
     font-size: 1.5em; /* Устанавливаем размер шрифта для лучшего соответствия */
     font-weight: bold; /* Жирный текст */
     cursor: pointer;
-    border: 0.5em solid white; /* Ширина границы */
+    border: 0.4em solid rgb(238, 7, 7); /* Ширина границы */
     border-radius: 50%; /* Круглая форма */
     background: transparent; /* Прозрачный фон */
     color: white;
@@ -67,9 +112,9 @@ body {
     box-shadow: none; /* Убираем тень */
     transition: transform 0.3s ease; /* Плавный переход при наведении */
     pointer-events: all; /* Взаимодействие с кнопками */
-    width: 3em; /* Ширина */
-    height: 3em; /* Высота */
-    line-height: 1; /* Убираем возможные дополнительные отступы у текста */
+    width: 1.5em; /* Ширина */
+    height: 1.5em; /* Высота */
+    line-height: 0; /* Убираем возможные дополнительные отступы у текста */
 }
 
 /* Эффекты при наведении для кнопок */
@@ -81,6 +126,8 @@ body {
 .button-bar .button[href="stream.html"] {
     font-size: 1.5em; /* Устанавливаем размер шрифта для кнопки со знаком "+" */
 }
+
+
 /* Стили для кнопки со значком ">" */
 #audience-join {
     font-size: 6vw; /* Используем ширину видимой области для размера шрифта */
@@ -117,4 +164,492 @@ body {
     100% {
         transform: rotate(360deg);
     }
+}
+
+
+/* Основные стили */
+/* Основные стили */
+#user-info {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    max-width: calc(100% - 0px); /* Ограничиваем ширину */
+    background: none;
+    overflow-x: auto;
+    box-sizing: border-box; /* Учитываем паддинги и границы в расчет ширины */
+}
+
+#user-name, #viewer-info, #user-score {
+    white-space: nowrap; /* Не разрешаем перенос текста */
+    overflow: hidden; /* Скрываем текст, который не помещается */
+    text-overflow: ellipsis; /* Показываем многоточие, если текст не помещается */
+}
+
+#user-name {
+    margin-right: auto; /* Устанавливаем отступ справа для отодвигания #user-score */
+    font-size: 18px;
+    color: #ffffff;
+    background: linear-gradient(45deg, #333, #555);
+    padding: 10px 15px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    font-family: 'Arial', sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#viewer-info {
+    display: flex;
+    align-items: center;
+    margin-right: 80px; /* Уменьшите отступ между viewer-info и user-score по мере необходимости */
+}
+
+#viewer-number {
+    font: 500 1.2rem SF Pro Display, -apple-system, system-ui, BlinkMacSystemFont, sans-serif; /* Устанавливает шрифт и размер текста */
+    color: #ffffff;
+    margin-right: 1px; /* Отступ между количеством просмотров и иконкой */
+    padding: 0; /* Убираем внутренние отступы */
+    border: none; /* Убираем границу */
+    border-radius: 0; /* Убираем скругление углов */
+    box-shadow: none; /* Убираем тень */
+    background: none; /* Убираем фон */
+    display: inline; /* Убираем блочное поведение */
+}
+#viewer-count {
+    display: flex;
+    align-items: center;
+}
+
+.viewer-icon {
+    width: 38px; /* Размер иконки */
+    height: 38px;
+    color: #e90404;
+}
+
+
+#user-score {
+    display: flex;
+    align-items: center;
+    background-color: #ffd700;
+    border-radius: 200px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    margin-left: auto; /* Отодвигаем элемент вправо, при этом он остается внутри #user-info */
+    white-space: nowrap;
+    max-width: 100%; /* Ограничиваем ширину блока, чтобы он не выходил за границы родителя */
+    overflow: hidden; /* Скрываем излишки текста */
+    text-overflow: ellipsis; /* Добавляем многоточие для обрезанного текста */
+}
+
+.coin-container {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.coin {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    margin-right: 8px;
+    display: inline-block;
+    animation: bounce 1.5s infinite;
+    padding: 4px 8px;
+    background: linear-gradient(45deg, #ffcc00, #ff9900);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-6px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
+}
+
+.score {
+    font-size: 22px;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #4caf50, #81c784);
+    padding: 6px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    display: inline-block;
+}
+
+/* Адаптация под экраны планшетов */
+@media (max-width: 768px) {
+    #user-info {
+        top: 10px;
+        left: 10px;
+        padding: 0;
+        width: calc(100% - 20px);
+    }
+
+    #user-name, #user-score {
+        font-size: 16px;
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+
+    .coin-container {
+        margin-right: 8px;
+    }
+
+    .coin {
+        font-size: 16px;
+        padding: 3px 6px;
+    }
+
+    .score {
+        font-size: 18px;
+        padding: 4px 8px;
+    }
+}
+
+
+/* Контейнер для отображения статистики */
+.stats-container {
+    position: fixed; /* Фиксирует позицию контейнера относительно окна браузера, не зависит от прокрутки страницы */
+    top: 78%; /* Размещает контейнер на 70% вниз от верхней части окна */
+    right: 0; /* Располагает контейнер на 0 пикселей от правого края окна */
+    transform: translateY(-50%); /* Сдвигает контейнер вверх на 50% от его собственной высоты для центрирования по вертикали */
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    flex-direction: column; /* Выстраивает элементы внутри контейнера в колонку (вертикально) */
+    align-items: center; /* Центрирует элементы по горизонтали внутри контейнера */
+    gap: 0.625rem; /* Промежутки между элементами в rem */
+    background-color: rgba(0, 0, 0, 0); /* Делает фон контейнера полностью прозрачным */
+    padding: 0.625rem; /* Добавляет внутренний отступ вокруг содержимого контейнера */
+    border-radius: 0.625rem; /* Скругляет углы контейнера радиусом 0.625rem */
+    color: white; /* Устанавливает цвет текста внутри контейнера в белый */
+}
+
+/* Внешний контейнер для статистики пожертвований */
+.donation-stats-container2 {
+    box-sizing: border-box; /* Учитывает внутренние отступы и границы в общей ширине и высоте элемента */
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    flex-direction: column; /* Выстраивает элементы внутри контейнера в колонку (вертикально) */
+    gap: 1rem; /* Добавляет промежутки между элементами в rem */
+    align-items: stretch; /* Растягивает элементы на всю ширину контейнера */
+    justify-content: flex-start; /* Выравнивает элементы по верхнему краю контейнера */
+    width: 2.1875rem; /* Ширина контейнера в rem */
+    padding-bottom: 5rem; /* Добавляет внутренний отступ снизу контейнера в rem */
+}
+
+/* Карточка статистики пожертвований */
+.donation-card {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри карточки */
+    flex-direction: column; /* Выстраивает элементы внутри карточки в колонку (вертикально) */
+    align-items: center; /* Центрирует элементы по горизонтали внутри карточки */
+    justify-content: flex-start; /* Выравнивает элементы по верхнему краю карточки */
+}
+
+/* Карточка статистики пожертвований */
+.like-card {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри карточки */
+    flex-direction: column; /* Выстраивает элементы внутри карточки в колонку (вертикально) */
+    align-items: center; /* Центрирует элементы по горизонтали внутри карточки */
+    justify-content: flex-start; /* Выравнивает элементы по верхнему краю карточки */
+}
+
+/* Контейнер для SVG иконок внутри карточки статистики */
+.svg-container-donate {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    width: 3.25rem; /* Ширина контейнера в rem */
+    height: 3.25rem; /* Высота контейнера в rem */
+}
+
+.svg-container-donate svg path {
+    stroke-width: 0.25rem; /* Устанавливает толщину обводки в rem */
+}
+
+
+/* Контейнер для SVG иконок внутри карточки статистики */
+.svg-container-like {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    width: 3.25rem; /* Ширина контейнера в rem */
+    height: 3.25rem; /* Высота контейнера в rem */
+}
+
+.svg-container-like svg path {
+    stroke-width: 0.25rem; /* Устанавливает толщину обводки в rem */
+}
+
+/* Стили для анимации и цветовой смены */
+.heart-like {
+    transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.heart-like-red {
+    fill: red;
+    stroke: red;
+}
+
+.heart-like-animation {
+    animation: heartbeat 0.6s ease-in-out;
+}
+
+/* Анимация для пульсации и перемещения */
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    20% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+    60% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+    80% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Добавляем тень для лучшего визуального эффекта */
+.heart-like-red {
+    filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+}
+
+
+
+
+
+/* Заголовок внутри карточки статистики */
+.donation-heading {
+    margin: 0; /* Убирает внутренние и внешние отступы */
+    margin-top: -0.3125rem; /* Убирает внешний отступ сверху в rem */
+    font: 400 1rem SF Pro Display, -apple-system, system-ui, BlinkMacSystemFont, sans-serif; /* Устанавливает шрифт и размер текста */
+    color: white; /* Устанавливает цвет текста в белый */
+}
+
+/* Карточка статистики, содержащая числовые данные */
+.statistic-like {
+    margin: 0; /* Убирает внутренние и внешние отступы */
+    margin-top: 0.0625rem; /* Добавляет внешний отступ сверху в rem */
+    font: 500 1rem SF Pro Display, -apple-system, system-ui, BlinkMacSystemFont, sans-serif; /* Устанавливает шрифт и размер текста */
+    color: white; /* Устанавливает цвет текста в белый */
+}
+
+/* Внешний контейнер для статистики пожертвований */
+.donation-stats-container1 {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    flex-direction: column; /* Выстраивает элементы внутри контейнера в колонку (вертикально) */
+    align-items: stretch; /* Растягивает элементы на всю ширину контейнера */
+    justify-content: flex-start; /* Выравнивает элементы по верхнему краю контейнера */
+}
+
+.comments-stats-container {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    flex-direction: column; /* Выстраивает элементы внутри контейнера в колонку (вертикально) */
+    align-items: stretch; /* Растягивает элементы на всю ширину контейнера */
+    justify-content: flex-start; /* Выравнивает элементы по верхнему краю контейнера */
+}
+
+/* Контейнер для SVG иконок внутри карточки статистики */
+.svg-container-share {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    align-self: center; /* Центрирует элемент по горизонтали внутри контейнера */
+    width: 3.25rem; /* Ширина контейнера в rem */
+    height: 3.25rem; /* Высота контейнера в rem */
+}
+
+.svg-container-share svg path {
+    stroke-width: 0.25rem; /* Устанавливает толщину обводки в rem */
+}
+
+.svg-container-comments {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    align-self: center; /* Центрирует элемент по горизонтали внутри контейнера */
+    width: 3.25rem; /* Ширина контейнера в rem */
+    height: 3.25rem; /* Высота контейнера в rem */
+}
+
+.svg-container-comments svg path {
+    stroke-width: 0.25rem; /* Устанавливает толщину обводки в rem */
+}
+
+/* Метка с числовым значением, выравненная по центру */
+.numeric-label {
+    margin: 0; /* Убирает внутренние и внешние отступы */
+    margin-top: 0.0625rem; /* Добавляет внешний отступ сверху в rem */
+    margin-right: 0.40625rem; /* Добавляет внешний отступ справа в rem */
+    margin-left: 0.4375rem; /* Добавляет внешний отступ слева в rem */
+    font: 500 1rem SF Pro Display, -apple-system, system-ui, BlinkMacSystemFont, sans-serif; /* Устанавливает шрифт и размер текста */
+    color: white; /* Устанавливает цвет текста в белый */
+    text-align: center; /* Выравнивает текст по центру */
+}
+
+/* Внутренний контейнер для статистики */
+.share-stats-container {
+    display: flex; /* Использует Flexbox для выравнивания элементов внутри контейнера */
+    flex-direction: column; /* Выстраивает элементы внутри контейнера в колонку (вертикально) */
+    align-items: stretch; /* Растягивает элементы на всю ширину контейнера */
+    justify-content: flex-start; /* Выравнивает элементы по верхнему краю контейнера */
+    margin-top: -0.1875rem; /* Убирает внешний отступ сверху в rem */
+}
+
+/* Отображение числового значения в статистике */
+.number-display {
+    margin: 0; /* Убирает внутренние и внешние отступы */
+    margin-top: 0.0625rem; /* Добавляет внешний отступ сверху в rem */
+    font: 500 1rem SF Pro Display, -apple-system, system-ui, BlinkMacSystemFont, sans-serif; /* Устанавливает шрифт и размер текста */
+    color: white; /* Устанавливает цвет текста в белый */
+    text-align: center; /* Выравнивает текст по центру */
+}
+
+/* Медиазапросы для маленьких экранов (до 320px) */
+@media (max-width: 320px) {
+    .stats-container {
+        top: 80%;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .donation-stats-container2 {
+        width: 1.5rem;
+        padding-bottom: 3rem;
+    }
+
+    .svg-container-donate, .svg-container-like, .svg-container-comments, .svg-container-share {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .donation-heading, .statistic-like, .numeric-label, .number-display {
+        font-size: 0.875rem;
+    }
+}
+
+/* Медиазапросы для экранов до 375px (iPhone SE, старые Android телефоны) */
+@media (min-width: 321px) and (max-width: 375px) {
+    .stats-container {
+        top: 75%;
+        padding: 0.625rem;
+        border-radius: 0.625rem;
+    }
+
+    .donation-stats-container2 {
+        width: 1.75rem;
+        padding-bottom: 4rem;
+    }
+
+    .svg-container-donate, .svg-container-like, .svg-container-comments, .svg-container-share {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    .donation-heading, .statistic-like, .numeric-label, .number-display {
+        font-size: 0.9375rem;
+    }
+}
+
+/* Медиазапросы для экранов до 414px (iPhone 6/7/8 Plus, Galaxy S9) */
+@media (min-width: 376px) and (max-width: 414px) {
+    .stats-container {
+        top: 80%;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+    }
+
+    .donation-stats-container2 {
+        width: 2rem;
+        padding-bottom: 5rem;
+    }
+
+    .svg-container-donate, .svg-container-like, .svg-container-comments, .svg-container-share {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .donation-heading, .statistic-like, .numeric-label, .number-display {
+        font-size: 1rem;
+    }
+}
+
+/* Медиазапросы для экранов до 480px (большие телефоны) */
+@media (min-width: 415px) and (max-width: 480px) {
+    .stats-container {
+        top: 80%;
+        padding: 0.875rem;
+        border-radius: 0.875rem;
+    }
+
+    .donation-stats-container2 {
+        width: 2.25rem;
+        padding-bottom: 5.5rem;
+    }
+
+    .svg-container-donate, .svg-container-like, .svg-container-comments, .svg-container-share {
+        width: 3.25rem;
+        height: 3.25rem;
+    }
+
+    .donation-heading, .statistic-like, .numeric-label, .number-display {
+        font-size: 1.0625rem;
+    }
+}
+
+/* Медиазапросы для экранов до 568px (iPhone X, Galaxy S10) */
+@media (min-width: 481px) and (max-width: 568px) {
+    .stats-container {
+        top: 80%;
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+
+    .donation-stats-container2 {
+        width: 2.5rem;
+        padding-bottom: 6rem;
+    }
+
+    .svg-container-donate, .svg-container-like, .svg-container-comments, .svg-container-share {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .donation-heading, .statistic-like, .numeric-label, .number-display {
+        font-size: 1.125rem;
+    }
+}
+
+
+.stream-ended-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2rem;
+    font-family: 'Arial', sans-serif; /* Замените на любой шрифт по вашему вкусу */
+    text-align: center;
+    z-index: 1000; /* Убедитесь, что сообщение отображается поверх других элементов */
+    background: transparent; /* Прозрачный фон */
+    padding: 20px;
 }

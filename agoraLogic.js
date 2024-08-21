@@ -1,15 +1,19 @@
+//agoraLogic
+
 import AgoraRTC from "agora-rtc-sdk-ng";
 import { AudienceLatencyLevelType } from "agora-rtc-sdk-ng";
 import { initializeStreamPage } from './startStream.js';
 import { initializeAudiencePage } from './streamFeed.js';
+import './swipeHandler.js';
 
 const axios = require('axios');
 
 
 
-export async function fetchToken(channelName, uid) {
+export async function fetchToken(appId, channelName, uid) {
     return new Promise(function (resolve, reject) {
         axios.post("https://test-site-domens.site:8080/generate-token", {
+            appId: appId,
             channelName: channelName,
             uid: uid
         }, {

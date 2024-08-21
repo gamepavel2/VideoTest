@@ -3,6 +3,8 @@ import { AudienceLatencyLevelType } from "agora-rtc-sdk-ng";
 import { fetchToken } from './agoraLogic.js';
 const axios = require('axios');
 
+
+
 let rtc = {
     localAudioTrack: null,
     localVideoTrack: null,
@@ -15,10 +17,24 @@ let options = {
     appId: "4d6be4271ce442b9912fa568bb508bfd"
 };
 
-export async function initializeStreamPage() {
+let uid;
+let channelName;
+let appId;
 
-    const uid = Math.floor(Math.random() * 1000000);
-    const channelName = Math.floor(Math.random() * 10000000).toString();
+let scoreInterval = null;
+
+
+export async function initializeStreamPage() {
+    const tg = window.Telegram.WebApp;
+    let userId_tg;
+    try {
+        userId_tg = tg.initDataUnsafe.user.id;
+    } catch (error) {
+        console.error('Failed to send stream info to server:', error);
+    }
+    const WebAppTelegramData = tg.initDataUnsafe;
+    console.log(WebAppTelegramData)
+    console.log(userId_tg)
     rtc.client = AgoraRTC.createClient({
         mode: "live",
         codec: "vp8",
@@ -36,11 +52,17 @@ export async function initializeStreamPage() {
     };
 
     document.getElementById("host-join").onclick = async function () {
+
+        appId = await getAppIdCreateStream(WebAppTelegramData)
+        uid = Math.floor(Math.random() * 1000000);
+        channelName = Math.floor(Math.random() * 10000000).toString()
+        console.log("Joining channel:", channelName, "with UID:", uid);
+
         rtc.client.setClientRole("host");
 
         
-        let token = await fetchToken(channelName, uid);
-        await rtc.client.join(options.appId, channelName, token, uid);
+        let token = await fetchToken(appId, channelName, uid);
+        await rtc.client.join(appId, channelName, token, uid);
 
         const micAudioEnabled = document.getElementById("mic-audio").checked;
         const systemAudioEnabled = document.getElementById("system-audio").checked;
@@ -90,19 +112,22 @@ export async function initializeStreamPage() {
 
         
         console.log("publish success!");
+        
 
         // Отправка информации о стриме на сервер
         try {
             await sendStreamInfoToServer(
                 channelName, 
                 uid, 
-                options.appId, 
+                appId, 
                 document.getElementById("stream-name").value, // Предполагается, что есть элемент с id "stream-name" для имени стрима
                 document.getElementById("stream-description").value // Предполагается, что есть элемент с id "stream-description" для описания стрима
             );
         } catch (error) {
             console.error('Failed to send stream info to server:', error);
         }
+        // Запускаем таймер для начисления очков
+        startScoreTimer(userId_tg, WebAppTelegramData);
     };
 
     document.getElementById("leave").onclick = async function () {
@@ -120,6 +145,8 @@ export async function initializeStreamPage() {
             playerContainer && playerContainer.remove();
         });
         console.log(uid)
+        // Останавливаем таймер, когда пользователь уходит
+        stopScoreTimer();
         try {
             await sendStreamStopToServer( 
                 uid
@@ -136,28 +163,47 @@ export async function initializeStreamPage() {
 
 
 
-// фукция для проверки запущен ли стрим
-async function startStreamCheckInterval(uid) {
-    setInterval(async () => {
-        try {
-            if (!rtc.client || !rtc.client.remoteUsers) {
-                console.log("RTC client is not initialized or remote users list is not available.");
-                return;
-            }
+// Запускаем таймер для начисления очков
+function startScoreTimer(userId_tg, WebAppTelegramData) {
+    if (scoreInterval) return; // Если таймер уже работает, не запускаем новый
 
-            // Проверьте, есть ли пользователь с данным uid в списке remoteUsers
-            const isStreamActive = rtc.client.remoteUsers.some(user => user.uid === uid);
+    scoreInterval = setInterval(async () => {
+        const score_update_server = 1; // Количество очков, которые мы добавляем каждую минуту
+        let score = await updateUserScore(userId_tg, score_update_server, WebAppTelegramData);
+        // Проверяем, что score является числом
+        document.querySelector('#user-score .score').textContent = score.toFixed(2); // Обновляем отображение счёта 
+         // Отправляем счёт на сервер
+    }, 60000); // 60000 мс = 1 минута
+}
 
-            if (!isStreamActive) {
-                console.log("Stream is not active for UID:", uid);
-                await sendStreamStopToServer(uid);
-            } else {
-                console.log("Stream is active for UID:", uid);
-            }
-        } catch (error) {
-            console.error("Error checking stream status:", error);
+// Останавливаем таймер и сбрасываем его
+function stopScoreTimer() {
+    if (scoreInterval) {
+        clearInterval(scoreInterval);
+        scoreInterval = null;
+    }
+}
+
+// Функция для отправки текущего счёта пользователя на сервер
+async function updateUserScore(userId_tg, score, WebAppTelegramData) {
+    try {
+        const response = await axios.post('https://test-site-domens.site:7070/api/gamecenter/users/score', {
+            id_user: userId_tg,
+            score: score,
+            WebAppTelegramData: WebAppTelegramData
+        });
+        
+        if (response.data && response.data.score !== undefined) {
+            console.log('Score updated successfully:', response.data.score);
+            return response.data.score;
+        } else {
+            console.error('Unexpected response format:', response);
+            return null;
         }
-    }, 20000); // 20000 миллисекунд = 20 секунд
+    } catch (error) {
+        console.error('Error updating score:', error);
+        return null;
+    }
 }
 
 
@@ -203,4 +249,22 @@ async function sendStreamStopToServer(uid) {
 
     const data = await response.json();
     console.log('Stream stop sent successfully:', data);
+}
+
+
+async function getAppIdCreateStream(TelegramWebApp) {
+    try {
+        // Отправляем GET-запрос с любым параметром
+        const response = await axios.get('https://test-site-domens.site:7070/get-app-id-create-stream', {
+            params: {
+                TelegramWebApp: TelegramWebApp
+            }
+        });
+
+        // Обрабатываем полученные данные
+        const { appId } = response.data;
+        return appId;
+    } catch (error) {
+        console.error('Error fetching random appId:', error);
+    }
 }

@@ -1,0 +1,130 @@
+/* Стили для модального окна */
+#donate-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8); /* Темный полупрозрачный фон */
+    backdrop-filter: blur(8px); /* Легкая размытость фона */
+    box-sizing: border-box;
+}
+
+/* Основной контейнер модального окна */
+#donate-modal .modal-content {
+    background-color: #333; /* Темно-серый фон для содержимого */
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90vw; /* Используем относительную единицу для ширины */
+    max-width: 500px; /* Максимальная ширина */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Более глубокая тень */
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    box-sizing: border-box;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+/* Кнопка закрытия */
+#donate-modal .close-button {
+    color: #fff;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.3s;
+}
+
+#donate-modal .close-button:hover,
+#donate-modal .close-button:focus {
+    color: #f44336; /* Красный цвет при наведении */
+    transform: rotate(90deg);
+}
+
+/* Стили для контейнера кнопок */
+#donate-modal .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Общие стили для кнопок */
+#donate-modal button {
+    color: #fff;
+    border: none;
+    padding: 15px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden; /* Обрезка содержимого для эффекта */
+}
+
+/* Специфичные стили для каждой кнопки */
+#donate-modal #btn-ton {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+#donate-modal #btn-telegram-stars {
+    background: linear-gradient(135deg, #f7e02b, #f5c300);
+}
+
+#donate-modal #btn-cma-token {
+    background: linear-gradient(135deg, #ff9900, #e68a00);
+}
+
+/* Эффекты при наведении и нажатии */
+#donate-modal button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+#donate-modal button:active {
+    transform: translateY(2px);
+}
+
+/* Анимация появления модального окна */
+#donate-modal.show {
+    display: block;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Анимация для модального окна */
+@keyframes slideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Эффект для кнопок */
+#donate-modal button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+    transition: opacity 0.3s ease;
+    z-index: 0;
+    transform: translateX(-100%);
+}
+
+#donate-modal button:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
