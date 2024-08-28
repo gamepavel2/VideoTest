@@ -3,14 +3,15 @@ import { AudienceLatencyLevelType } from "agora-rtc-sdk-ng";
 import { fetchToken } from './agoraLogic.js';
 const axios = require('axios');
 
-
+let streamInfoInterval = null;
 
 let rtc = {
     localAudioTrack: null,
     localVideoTrack: null,
     screenTrack: null,
     client: null,
-    isScreenSharing: false
+    isScreenSharing: false,
+    useBackCamera: false // Флаг для выбора задней камеры
 };
 
 let options = {
@@ -25,6 +26,68 @@ let scoreInterval = null;
 
 
 export async function initializeStreamPage() {
+    // Получаем список доступных камер
+    let cameras = [];
+
+    try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        cameras = devices.filter(device => device.kind === 'videoinput');
+        console.log("Available cameras:", cameras);
+    } catch (error) {
+        console.error("Error accessing camera:", error);
+    }
+
+    cameras.forEach(camera => {
+        console.log(`ID камеры: ${camera.deviceId}, Название: ${camera.label}`);
+    });
+
+    let frontCamera = cameras.find(camera => {
+    const label = camera.label.toLowerCase().replace(/\s+/g, ''); // Удаляем все пробелы
+    return label.includes("user") || 
+           label.includes("front") ||
+           label.includes("facing");
+    });
+
+    let backCamera = cameras.find(camera => {
+        const label = camera.label.toLowerCase().replace(/\s+/g, '');
+        return label.includes("world") || 
+            label.includes("back") ||
+            label.includes("environment");
+    });
+
+    // Если фронтальная камера не найдена, используем первую доступную камеру
+    const hasFrontCamera = !!frontCamera || cameras.length > 0;
+    const hasBackCamera = !!backCamera;
+
+    // Если фронтальная камера не определена, но есть доступные камеры, используем первую
+    if (!frontCamera && cameras.length > 0) {
+        frontCamera = cameras[0];
+    }
+    
+    // Проверяем доступность экрана
+    // Проверяем доступность захвата экрана
+    const hasScreenShare = !!navigator.mediaDevices.getDisplayMedia;
+    
+    // Получаем ссылку на select элемент
+    const streamTypeSelect = document.getElementById("stream-type");
+    
+    // Удаляем опции, если устройство не доступно
+    if (!hasFrontCamera) {
+        const webcamOption = streamTypeSelect.querySelector('option[value="webcam"]');
+        if (webcamOption) webcamOption.remove();
+    }
+    
+    if (!hasBackCamera) {
+        const backCameraOption = streamTypeSelect.querySelector('option[value="back-camera"]');
+        if (backCameraOption) backCameraOption.remove();
+    }
+
+    if (!hasScreenShare) {
+        const screenOption = streamTypeSelect.querySelector('option[value="screen"]');
+        if (screenOption) screenOption.remove();
+    }
+
     const tg = window.Telegram.WebApp;
     let userId_tg;
     try {
@@ -43,15 +106,22 @@ export async function initializeStreamPage() {
         }
     });
 
-    document.getElementById("stream-webcam").onclick = function () {
-        rtc.isScreenSharing = false;
-    };
-
-    document.getElementById("stream-screen").onclick = function () {
-        rtc.isScreenSharing = true;
-    };
+    
 
     document.getElementById("host-join").onclick = async function () {
+        const isCropVideoEnabled = document.getElementById("crop-video").checked;    
+        const streamType = document.getElementById("stream-type").value;
+
+        if (streamType === "webcam") {
+            rtc.isScreenSharing = false;
+            rtc.useBackCamera = false;
+        } else if (streamType === "screen") {
+            rtc.isScreenSharing = true;
+            rtc.useBackCamera = false;
+        } else if (streamType === "back-camera") {
+            rtc.isScreenSharing = false;
+            rtc.useBackCamera = true;
+        }
 
         appId = await getAppIdCreateStream(WebAppTelegramData)
         uid = Math.floor(Math.random() * 1000000);
@@ -68,7 +138,7 @@ export async function initializeStreamPage() {
         const systemAudioEnabled = document.getElementById("system-audio").checked;
 
         if (rtc.isScreenSharing) {
-            // Захват экрана с опциональным системным аудио
+            // Если выбран захват экрана
             rtc.screenTrack = await AgoraRTC.createScreenVideoTrack({
                 encoderConfig: {
                     width: 1280,
@@ -76,10 +146,9 @@ export async function initializeStreamPage() {
                     frameRate: 60,
                     bitrateMax: 1500
                 },
-                withAudio: systemAudioEnabled ? "system" : false
+                withAudio: systemAudioEnabled ? "system" : false // Включаем системный звук, если выбран
             });
-
-            // Захват микрофона, если выбран
+    
             if (micAudioEnabled) {
                 rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
                 await rtc.client.publish([rtc.screenTrack, rtc.localAudioTrack]);
@@ -87,21 +156,36 @@ export async function initializeStreamPage() {
                 await rtc.client.publish([rtc.screenTrack]);
             }
         } else {
-            // Захват веб-камеры и опционального микрофона
+            // Получаем идентификатор нужной камеры
+            const cameraId = await getCameraId(rtc.useBackCamera);
+
             const tracks = [];
             if (micAudioEnabled) {
                 rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
                 tracks.push(rtc.localAudioTrack);
             }
-            rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
+
+            rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack({
+                cameraId: cameraId,
+                encoderConfig: {
+                    width: 640, // Уменьшение разрешения для снижения эффекта приближения
+                    height: 480,
+                    frameRate: 30,
+                    bitrateMax: 1000
+                }
+            });
             tracks.push(rtc.localVideoTrack);
 
             await rtc.client.publish(tracks);
         }
-        
+
         const localPlayerContainer = document.createElement("div");
         localPlayerContainer.className = 'video-container'; // Применяем CSS-класс
         localPlayerContainer.id = uid;
+        // Применение зеркального эффекта, если используется задняя камера
+        if (rtc.useBackCamera) {
+            localPlayerContainer.style.transform = 'scaleX(-1)';
+        }
         document.body.querySelector(".video-container").append(localPlayerContainer);
 
         if (rtc.isScreenSharing) {
@@ -114,20 +198,33 @@ export async function initializeStreamPage() {
         console.log("publish success!");
         
 
+        await saveChannelNameElement(channelName)
+        startInfoStreamTimer(channelName)
+
         // Отправка информации о стриме на сервер
         try {
             await sendStreamInfoToServer(
                 channelName, 
                 uid, 
                 appId, 
-                document.getElementById("stream-name").value, // Предполагается, что есть элемент с id "stream-name" для имени стрима
-                document.getElementById("stream-description").value // Предполагается, что есть элемент с id "stream-description" для описания стрима
+                userId_tg, 
+                WebAppTelegramData,
+                document.getElementById("stream-name").value, // Имя стрима
+                document.getElementById("stream-description").value, // Описание стрима
+                streamType, // Тип стрима
+                isCropVideoEnabled // Обрезка видео
             );
         } catch (error) {
             console.error('Failed to send stream info to server:', error);
         }
         // Запускаем таймер для начисления очков
         startScoreTimer(userId_tg, WebAppTelegramData);
+    };
+
+
+    document.getElementById("show-in-feed").onclick = async function () {
+        await updateLaunchedInFeed(uid)
+
     };
 
     document.getElementById("leave").onclick = async function () {
@@ -162,7 +259,20 @@ export async function initializeStreamPage() {
 }
 
 
+// Функция для получения идентификатора камеры
+async function getCameraId(useBackCamera) {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
 
+    if (useBackCamera) {
+        // Поиск камеры с названием, включающим "back" или использование последней камеры
+        const backCamera = videoDevices.find(device => device.label.toLowerCase().includes('back'));
+        return backCamera ? backCamera.deviceId : videoDevices[videoDevices.length - 1].deviceId;
+    } else {
+        // Используем первую камеру в списке (обычно передняя)
+        return videoDevices[0].deviceId;
+    }
+}
 // Запускаем таймер для начисления очков
 function startScoreTimer(userId_tg, WebAppTelegramData) {
     if (scoreInterval) return; // Если таймер уже работает, не запускаем новый
@@ -207,7 +317,7 @@ async function updateUserScore(userId_tg, score, WebAppTelegramData) {
 }
 
 
-async function sendStreamInfoToServer(channelName, uid, appId, streamName, streamDescription) {
+async function sendStreamInfoToServer(channelName, uid, appId, id_user, WebAppTelegramData, streamName, streamDescription, streamType, isCropVideoEnabled) {
     const response = await fetch('https://test-site-domens.site:7070/create-stream', {
         method: 'POST',
         headers: {
@@ -217,8 +327,12 @@ async function sendStreamInfoToServer(channelName, uid, appId, streamName, strea
             channelName,
             uid,
             appId,
+            id_user,
+            WebAppTelegramData,
             StreamName: streamName,
             StreamDescription: streamDescription,
+            StreamType: streamType,
+            IsCropVideoEnabled: isCropVideoEnabled,
             Launched: true
         })
     });
@@ -231,7 +345,14 @@ async function sendStreamInfoToServer(channelName, uid, appId, streamName, strea
     console.log('Stream info sent successfully:', data);
 }
 
-
+async function updateLaunchedInFeed(uid) {
+    try {
+        const response = await axios.get(`https://test-site-domens.site:7070/api/streams/${uid}/launch-in-feed`);
+        console.log('Response data:', response.data);
+    } catch (error) {
+        console.error('Error occurred:', error.response ? error.response.data : error.message);
+    }
+}
 async function sendStreamStopToServer(uid) {
     const response = await fetch('https://test-site-domens.site:7070/stop-stream', {
         method: 'POST',
@@ -266,5 +387,56 @@ async function getAppIdCreateStream(TelegramWebApp) {
         return appId;
     } catch (error) {
         console.error('Error fetching random appId:', error);
+    }
+}
+
+// Скрипт 1: Запись данных в скрытый элемент
+async function saveChannelNameElement(ChannelName) {
+    const hiddenElement = document.getElementById('ChannelNameData');
+    const ElementUpdateSwitchStream = Math.random().toString().slice(10, 20);
+    hiddenElement.value = `${ChannelName}:${ElementUpdateSwitchStream}`;
+}
+
+
+// Запускаем таймер для обновления данных о стриме
+function startInfoStreamTimer(channelName) {
+    if (streamInfoInterval) return; // Если таймер уже работает, не запускаем новый
+
+    streamInfoInterval = setInterval(async () => {
+        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreaminfoChannelName(channelName);
+        // Проверяем, что score является числом
+        // Отображаем количество просмотров и лайков
+        document.getElementById('viewer-number').textContent = `${viewerCount}`;
+        document.getElementById('statistic-like').textContent = `${LikeCount}`;
+        document.getElementById('comments-count').textContent = `${commentCount}`;
+        if (!Launched) {
+            await showStreamEndedMessage()
+        }
+         // Отправляем счёт на сервер
+    }, 5000); // 60000 мс = 1 минута
+}
+
+// Останавливаем таймер и сбрасываем его
+function stopInfoStreamTimer() {
+    if (streamInfoInterval) {
+        clearInterval(streamInfoInterval);
+        streamInfoInterval = null;
+    }
+}
+async function showStreamEndedMessage() {
+    console.log("Stream ended");
+}
+async function getStreaminfoChannelName(channelName) {
+    // Запрашиваем новый стрим и присоединяемся к нему
+    try {
+        const response = await axios.get('https://test-site-domens.site:7070/get-stream-info-channelname', {
+            params: { channelName }
+        });
+
+        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = response.data;
+        return response.data
+
+    } catch (error) {
+        console.error('Error fetching stream data:', error.response ? error.response.data : error.message);
     }
 }

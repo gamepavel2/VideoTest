@@ -163,7 +163,7 @@ document.querySelector('.svg-container-share').addEventListener('click', async (
 
         // Обрабатываем, если refCode не найден
         if (!refCode) {
-            console.error('RefCode не найден');
+            console.error('RefCode No');
             return;
         }
 

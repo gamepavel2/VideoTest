@@ -1,0 +1,153 @@
+/* Основные стили */
+#user-info {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    max-width: calc(100% - 0px); /* Ограничиваем ширину */
+    background: none;
+    overflow-x: auto;
+    box-sizing: border-box; /* Учитываем паддинги и границы в расчет ширины */
+}
+
+#user-name, #viewer-info, #user-score {
+    white-space: nowrap; /* Не разрешаем перенос текста */
+    overflow: hidden; /* Скрываем текст, который не помещается */
+    text-overflow: ellipsis; /* Показываем многоточие, если текст не помещается */
+}
+
+#user-name {
+    margin-right: auto; /* Устанавливаем отступ справа для отодвигания #user-score */
+    font-size: 18px;
+    color: #ffffff;
+    background: linear-gradient(45deg, #333, #555);
+    padding: 10px 15px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    font-family: 'Arial', sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#viewer-info {
+    display: flex;
+    align-items: center;
+    margin-right: 80px; /* Уменьшите отступ между viewer-info и user-score по мере необходимости */
+}
+
+#viewer-number {
+    font: 500 1.2rem SF Pro Display, -apple-system, system-ui, BlinkMacSystemFont, sans-serif; /* Устанавливает шрифт и размер текста */
+    color: #ffffff;
+    margin-right: 1px; /* Отступ между количеством просмотров и иконкой */
+    padding: 0; /* Убираем внутренние отступы */
+    border: none; /* Убираем границу */
+    border-radius: 0; /* Убираем скругление углов */
+    box-shadow: none; /* Убираем тень */
+    background: none; /* Убираем фон */
+    display: inline; /* Убираем блочное поведение */
+}
+#viewer-count {
+    display: flex;
+    align-items: center;
+}
+
+.viewer-icon {
+    width: 38px; /* Размер иконки */
+    height: 38px;
+    color: #e90404;
+}
+
+
+#user-score {
+    display: flex;
+    align-items: center;
+    background-color: #ffd700;
+    border-radius: 200px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    margin-left: auto; /* Отодвигаем элемент вправо, при этом он остается внутри #user-info */
+    white-space: nowrap;
+    max-width: 100%; /* Ограничиваем ширину блока, чтобы он не выходил за границы родителя */
+    overflow: hidden; /* Скрываем излишки текста */
+    text-overflow: ellipsis; /* Добавляем многоточие для обрезанного текста */
+}
+
+.coin-container {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.coin {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    margin-right: 8px;
+    display: inline-block;
+    animation: bounce 1.5s infinite;
+    padding: 4px 8px;
+    background: linear-gradient(45deg, #ffcc00, #ff9900);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-6px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
+}
+
+.score {
+    font-size: 22px;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #4caf50, #81c784);
+    padding: 6px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    display: inline-block;
+}
+
+/* Адаптация под экраны планшетов */
+@media (max-width: 768px) {
+    #user-info {
+        top: 10px;
+        left: 10px;
+        padding: 0;
+        width: calc(100% - 20px);
+    }
+
+    #user-name, #user-score {
+        font-size: 16px;
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+
+    .coin-container {
+        margin-right: 8px;
+    }
+
+    .coin {
+        font-size: 16px;
+        padding: 3px 6px;
+    }
+
+    .score {
+        font-size: 18px;
+        padding: 4px 8px;
+    }
+}

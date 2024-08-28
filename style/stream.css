@@ -18,7 +18,6 @@ body {
     overflow: hidden;
 }
 
-
 /* Стили для заголовка страницы */
 h2 {
     margin-top: 20px;
@@ -46,18 +45,18 @@ h2 {
     gap: 10px;
 }
 
-/* Стили для кнопок */
-button {
+/* Стили для выпадающего списка */
+select {
     padding: 10px 20px;
     font-size: 16px;
-    cursor: pointer;
-    border: none;
+    border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #007bff;
     color: white;
+    cursor: pointer;
 }
 
-button:hover {
+select:hover {
     background-color: #0056b3;
 }
 
@@ -77,12 +76,10 @@ input[type="checkbox"] {
 
 #leave {
     position: absolute;
-    top: 10px; /* отступ сверху */
-    right: 10px; /* отступ справа */
-    z-index: 1; /* кнопка должна быть поверх видео */
-  }
-
-
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+}
 
 /* Стили для контейнера с видео */
 .video-container {
@@ -93,17 +90,14 @@ input[type="checkbox"] {
     height: 100vh;
     background-color: #000;
     overflow: hidden;
-    position: relative; /* Устанавливаем относительное позиционирование для контейнера */
+    position: relative;
 }
 
-  
 /* Стили для видео */
 .video-container video {
     width: 100% !important;
     height: 100% !important;
-    /*object-fit: cover !important;*/
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
 }
-

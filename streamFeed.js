@@ -19,7 +19,7 @@ async function joinStream(startWebAppliveStreamNew) {
     const start_param_code = WebAppTelegramData.start_param;
 
     // Объявляем переменные на уровне всей функции
-    let appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount;
+    let appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription;
     if (startWebAppliveStreamNew) {
         try {
             if (start_param_code) {
@@ -32,23 +32,23 @@ async function joinStream(startWebAppliveStreamNew) {
 
                 if (streamChannelName) {
                     // Запрос информации о канале
-                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreaminfoChannelName(streamChannelName));
+                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreaminfoChannelName(streamChannelName));
                 } else {
                     // Если streamChannelName не найден, получаем данные по пользователю
-                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreamUserFeed());
+                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
                 }
             } else {
                 // Если start_param_code отсутствует, получаем данные по пользователю
-                ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreamUserFeed());
+                ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
             }
         } catch (error) {
             console.error('Error retrieving stream information:', error);
             // В случае ошибки, получаем данные по пользователю
-            ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreamUserFeed());
+            ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
         }
     } else {
         // Если startWebAppliveStreamNew = false, получаем данные по пользователю
-        ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreamUserFeed());
+        ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
     }
 
     if (!Launched) {
@@ -56,11 +56,13 @@ async function joinStream(startWebAppliveStreamNew) {
     }
     await saveChannelNameElement(channelName)
 
-    
+    const userName = "TestUser"
     // Отображаем количество просмотров и лайков
     document.getElementById('viewer-number').textContent = `${viewerCount}`;
     document.getElementById('statistic-like').textContent = `${LikeCount}`;
     document.getElementById('comments-count').textContent = `${commentCount}`;
+    document.getElementById('streamer-name').innerText = userName;
+    document.getElementById('stream-title').innerText = StreamName;
 
     rtc.client = AgoraRTC.createClient({
         mode: "live",
@@ -280,7 +282,7 @@ async function getStreamUserFeed() {
     // Запрашиваем новый стрим и присоединяемся к нему
     try {
         const response = await axios.get('https://test-site-domens.site:7070/get-stream-user-feed');
-        const { appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = response.data;
+        const { appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = response.data;
         return response.data    
     }
     catch (error) {
@@ -303,7 +305,7 @@ async function getStreaminfoChannelName(channelName) {
             params: { channelName }
         });
 
-        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = response.data;
+        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = response.data;
         return response.data
 
     } catch (error) {
