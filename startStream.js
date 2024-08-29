@@ -3,7 +3,7 @@ import { AudienceLatencyLevelType } from "agora-rtc-sdk-ng";
 import { fetchToken } from './agoraLogic.js';
 const axios = require('axios');
 
-let streamInfoInterval = null;
+
 
 let rtc = {
     localAudioTrack: null,
@@ -23,6 +23,7 @@ let channelName;
 let appId;
 
 let scoreInterval = null;
+let streamInfoInterval = null;
 
 
 export async function initializeStreamPage() {
@@ -199,7 +200,7 @@ export async function initializeStreamPage() {
         
 
         await saveChannelNameElement(channelName)
-        startInfoStreamTimer(channelName)
+        startInfoStreamTimer(channelName, userId_tg)
 
         // Отправка информации о стриме на сервер
         try {
@@ -399,11 +400,11 @@ async function saveChannelNameElement(ChannelName) {
 
 
 // Запускаем таймер для обновления данных о стриме
-function startInfoStreamTimer(channelName) {
+function startInfoStreamTimer(channelName, userId_tg) {
     if (streamInfoInterval) return; // Если таймер уже работает, не запускаем новый
 
     streamInfoInterval = setInterval(async () => {
-        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreaminfoChannelName(channelName);
+        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreaminfoChannelName(channelName, userId_tg);
         // Проверяем, что score является числом
         // Отображаем количество просмотров и лайков
         document.getElementById('viewer-number').textContent = `${viewerCount}`;
@@ -426,11 +427,11 @@ function stopInfoStreamTimer() {
 async function showStreamEndedMessage() {
     console.log("Stream ended");
 }
-async function getStreaminfoChannelName(channelName) {
+async function getStreaminfoChannelName(channelName, user_id_viewer) {
     // Запрашиваем новый стрим и присоединяемся к нему
     try {
         const response = await axios.get('https://test-site-domens.site:7070/get-stream-info-channelname', {
-            params: { channelName }
+            params: { channelName, user_id_viewer }
         });
 
         const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = response.data;

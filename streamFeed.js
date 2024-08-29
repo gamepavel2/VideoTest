@@ -10,6 +10,7 @@ let rtc = {
 
 let scoreInterval = null;
 let streamInfoInterval = null;
+
 async function joinStream(startWebAppliveStreamNew) {
 
 
@@ -19,7 +20,7 @@ async function joinStream(startWebAppliveStreamNew) {
     const start_param_code = WebAppTelegramData.start_param;
 
     // Объявляем переменные на уровне всей функции
-    let appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription;
+    let appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed ;
     if (startWebAppliveStreamNew) {
         try {
             if (start_param_code) {
@@ -32,23 +33,23 @@ async function joinStream(startWebAppliveStreamNew) {
 
                 if (streamChannelName) {
                     // Запрос информации о канале
-                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreaminfoChannelName(streamChannelName));
+                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed  } = await getStreaminfoChannelName(streamChannelName, userId_tg));
                 } else {
                     // Если streamChannelName не найден, получаем данные по пользователю
-                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
+                    ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed  } = await getStreamUserFeed(userId_tg));
                 }
             } else {
                 // Если start_param_code отсутствует, получаем данные по пользователю
-                ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
+                ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed  } = await getStreamUserFeed(userId_tg));
             }
         } catch (error) {
             console.error('Error retrieving stream information:', error);
             // В случае ошибки, получаем данные по пользователю
-            ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
+            ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName , isSubscribed } = await getStreamUserFeed(userId_tg));
         }
     } else {
         // Если startWebAppliveStreamNew = false, получаем данные по пользователю
-        ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = await getStreamUserFeed());
+        ({ appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed } = await getStreamUserFeed(userId_tg));
     }
 
     if (!Launched) {
@@ -56,12 +57,24 @@ async function joinStream(startWebAppliveStreamNew) {
     }
     await saveChannelNameElement(channelName)
 
-    const userName = "TestUser"
+    // Проверяем на дописку пользователя
+    const subscribeButton = document.getElementById('subscribe-button');
+    if (isSubscribed){
+        //Пользователь подписан
+        subscribeButton.classList.add('subscribed');
+        subscribeButton.textContent = 'You subscribed';
+        subscribeButton.style.backgroundColor = '#5cff5c'; // Новый цвет
+    } else {
+        //Пользователь не подписан
+        subscribeButton.classList.remove('subscribed');
+        subscribeButton.textContent = 'Subscribe';
+        subscribeButton.style.backgroundColor = '#ff5c5c'; // Исходный цвет
+    }
     // Отображаем количество просмотров и лайков
     document.getElementById('viewer-number').textContent = `${viewerCount}`;
     document.getElementById('statistic-like').textContent = `${LikeCount}`;
     document.getElementById('comments-count').textContent = `${commentCount}`;
-    document.getElementById('streamer-name').innerText = userName;
+    document.getElementById('streamer-name').innerText = UserName;
     document.getElementById('stream-title').innerText = StreamName;
 
     rtc.client = AgoraRTC.createClient({
@@ -94,7 +107,7 @@ async function joinStream(startWebAppliveStreamNew) {
         }
         // Запускаем таймер для начисления очков
         startScoreTimer(userId_tg, WebAppTelegramData);
-        startInfoStreamTimer(channelName);
+        startInfoStreamTimer(channelName, userId_tg);
     });
 
 
@@ -241,11 +254,11 @@ function stopScoreTimer(userId_tg) {
 
 
 // Запускаем таймер для обновления данных о стриме
-function startInfoStreamTimer(channelName) {
+function startInfoStreamTimer(channelName, userId_tg) {
     if (streamInfoInterval) return; // Если таймер уже работает, не запускаем новый
 
     streamInfoInterval = setInterval(async () => {
-        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreaminfoChannelName(channelName);
+        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount } = await getStreaminfoChannelName(channelName, userId_tg);
         // Проверяем, что score является числом
         // Отображаем количество просмотров и лайков
         document.getElementById('viewer-number').textContent = `${viewerCount}`;
@@ -278,11 +291,13 @@ async function showNoStreamsliveMessage() {
 
     document.getElementById("loading-spinner").style.display = "none";
 }
-async function getStreamUserFeed() {
+async function getStreamUserFeed(user_id_viewer) {
     // Запрашиваем новый стрим и присоединяемся к нему
     try {
-        const response = await axios.get('https://test-site-domens.site:7070/get-stream-user-feed');
-        const { appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = response.data;
+        const response = await axios.get('https://test-site-domens.site:7070/get-stream-user-feed',{
+            params: { user_id_viewer } 
+        });
+        const { appId, channelName, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed } = response.data;
         return response.data    
     }
     catch (error) {
@@ -298,14 +313,14 @@ async function getStreamUserFeed() {
     }
 }
 
-async function getStreaminfoChannelName(channelName) {
+async function getStreaminfoChannelName(channelName, user_id_viewer) {
     // Запрашиваем новый стрим и присоединяемся к нему
     try {
         const response = await axios.get('https://test-site-domens.site:7070/get-stream-info-channelname', {
-            params: { channelName }
+            params: { channelName, user_id_viewer }
         });
 
-        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription } = response.data;
+        const { appId, channelName2, viewerCount, LikeCount, Launched, LaunchedInFeed, commentCount, StreamName, StreamDescription, UserName, isSubscribed } = response.data;
         return response.data
 
     } catch (error) {

@@ -685,3 +685,11 @@ body {
 .subscribe-button:hover {
     background-color: #ff2a2a;
 }
+
+.subscribed {
+    background-color: #5cff5c;
+}
+
+.subscribed:hover {
+    background-color: #2aff2a;
+}

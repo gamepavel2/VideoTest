@@ -1,6 +1,7 @@
 const tg = window.Telegram.WebApp;
 const userId_tg = tg.initDataUnsafe.user.id;
 const WebAppTelegramData = tg.initDataUnsafe;
+const username = WebAppTelegramData.user.username;
 console.log(tg) 
 console.log(WebAppTelegramData)
 
@@ -177,3 +178,64 @@ document.querySelector('.svg-container-share').addEventListener('click', async (
         console.error('Error fetching refCode:', error);
     }
 });
+
+
+document.getElementById('subscribe-button').addEventListener('click', function() {
+    const button = this;
+    const { channelName, updateSwitch } = getStoredValues();
+    // Проверяем, есть ли у кнопки класс "subscribed"
+    if (button.classList.contains('subscribed')) {
+        // Если да, возвращаем начальное состояние
+        button.classList.remove('subscribed');
+        button.textContent = 'Subscribe';
+        button.style.backgroundColor = '#ff5c5c'; // Исходный цвет
+        unsubscribeToChannel(userId_tg, username, channelName, WebAppTelegramData)
+        
+    } else {
+        // Если нет, добавляем класс "subscribed" и меняем текст
+        button.classList.add('subscribed');
+        button.textContent = 'You subscribed';
+        button.style.backgroundColor = '#5cff5c'; // Новый цвет
+        subscribeToChannel(userId_tg, username, channelName, WebAppTelegramData)
+    }
+});
+
+async function subscribeToChannel(user_id_subscriber, user_name, Channel_Name, WebAppTelegramData) {
+    try {
+        const response = await axios.post('https://test-site-domens.site:7070/api/subscribe', {
+            user_id_subscriber: user_id_subscriber,
+            user_name: user_name,
+            Channel_Name: Channel_Name,
+            WebAppTelegramData_subscriber_user: WebAppTelegramData,
+        });
+
+        console.log('Response:', response.data);
+    } catch (error) {
+        if (error.response) {
+            console.error('Error:', error.response.data);
+        } else {
+            console.error('Error:', error.message);
+        }
+    }
+}
+
+
+async function unsubscribeToChannel(user_id_subscriber, user_name, Channel_Name, WebAppTelegramData) {
+    try {
+        const response = await axios.post('https://test-site-domens.site:7070/api/unsubscribe', {
+            user_id_subscriber: user_id_subscriber,
+            user_name: user_name,
+            Channel_Name: Channel_Name,
+            WebAppTelegramData_subscriber_user: WebAppTelegramData,
+        });
+
+        console.log('Response:', response.data);
+    } catch (error) {
+        if (error.response) {
+            console.error('Error:', error.response.data);
+        } else {
+            console.error('Error:', error.message);
+        }
+    }
+}
+
